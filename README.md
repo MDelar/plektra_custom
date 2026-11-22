@@ -1,5 +1,12 @@
 <p align="center"><img src="docs/branding/plektra-open-color.svg" alt="Plektra" width="160"></p>
 
+> **Plektra Custom** — this is [MDelar/plektra_custom](https://github.com/MDelar/plektra_custom), a personal fork of
+> [Plektra](https://github.com/pkb-rocks/plektra) by Patrick Zauner (itself grown out of Pastiera by Andrea Palumbo /
+> PalSoftware). It installs alongside official Plektra as **Plektra Custom** (`rocks.pkb.plektra.custom`), signed with its
+> own key, with GitHub update checks switched off.
+>
+> Licence: GPL-3.0, as upstream.
+
 # Plektra
 
 **Advanced (hardware) keyboard control on Android**
