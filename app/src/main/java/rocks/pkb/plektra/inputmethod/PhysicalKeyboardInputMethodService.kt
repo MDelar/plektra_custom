@@ -1978,7 +1978,14 @@ class PhysicalKeyboardInputMethodService : InputMethodService(), ClicksAccessibi
             currentLocale = initialLocale,
             keyboardLayoutProvider = { SettingsManager.getKeyboardLayout(this) },
             activeSuggestionLocalesProvider = { getAdditionalSuggestionLocalesForActiveInputStyle() },
-            isStorageAvailable = { !directBootLocked }
+            isStorageAvailable = { !directBootLocked },
+            isLearningEnabled = { SettingsManager.getLearnFromTyping(this) },
+            isLearningAllowedInField = {
+                val info = currentInputEditorInfo
+                val noLearning = info != null &&
+                    (info.imeOptions and android.view.inputmethod.EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING) != 0
+                !noLearning && !inputContextState.isPasswordField
+            }
         )
         inputEventRouter.suggestionController = suggestionController
         

@@ -26,6 +26,12 @@ class UserNGramStore(context: Context) : SQLiteOpenHelper(
         val lastUsed: Long
     )
 
+    override fun onConfigure(db: SQLiteDatabase) {
+        super.onConfigure(db)
+        // Plektra Custom: overwrite deleted learned words on disk instead of leaving them in free pages.
+        db.rawQuery("PRAGMA secure_delete = ON", null).close()
+    }
+
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(
             """
@@ -83,7 +89,29 @@ class UserNGramStore(context: Context) : SQLiteOpenHelper(
         } finally {
             db.endTransaction()
         }
+        if (++learnsSincePrune >= PRUNE_CHECK_INTERVAL) {
+            learnsSincePrune = 0
+            pruneIfNeeded(db)
+        }
     }
+
+    /**
+     * Plektra Custom: keeps learned data small. Above [MAX_ROWS] pairs, the least used and
+     * oldest pairs are dropped, bringing the table back to [PRUNE_TARGET_ROWS] (~1-2 MB on disk).
+     */
+    internal fun pruneIfNeeded(db: SQLiteDatabase = writableDatabase, maxRows: Long = MAX_ROWS, targetRows: Long = PRUNE_TARGET_ROWS) {
+        val rows = android.database.DatabaseUtils.queryNumEntries(db, TABLE_BIGRAMS)
+        if (rows <= maxRows) return
+        val excess = rows - targetRows
+        db.execSQL(
+            "DELETE FROM $TABLE_BIGRAMS WHERE rowid IN (" +
+                "SELECT rowid FROM $TABLE_BIGRAMS ORDER BY $COL_COUNT ASC, $COL_LAST_USED ASC LIMIT ?)",
+            arrayOf(excess)
+        )
+    }
+
+    /** Number of learned word pairs. */
+    fun learnedPairCount(): Long = android.database.DatabaseUtils.queryNumEntries(readableDatabase, TABLE_BIGRAMS)
 
     override fun predict(locale: String, prefix: String, limit: Int): List<Prediction> {
         if (limit <= 0) return emptyList()
@@ -133,10 +161,17 @@ class UserNGramStore(context: Context) : SQLiteOpenHelper(
 
     override fun clearAll() {
         writableDatabase.delete(TABLE_BIGRAMS, null, null)
+        // Reclaim the space on disk too, so deleted words don't linger in free pages.
+        writableDatabase.execSQL("VACUUM")
     }
 
+    @Volatile private var learnsSincePrune = 0
+
     companion object {
-        private const val DATABASE_NAME = "user_ngrams.db"
+        const val DATABASE_NAME = "user_ngrams.db"
+        internal const val MAX_ROWS = 20_000L
+        internal const val PRUNE_TARGET_ROWS = 18_000L
+        private const val PRUNE_CHECK_INTERVAL = 64
         private const val DATABASE_VERSION = 1
         private const val TABLE_BIGRAMS = "bigrams"
         private const val COL_LOCALE = "locale"

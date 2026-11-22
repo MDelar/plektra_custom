@@ -114,3 +114,41 @@ and their manifests. Conversion and serialization scripts live under `scripts/`.
 Provenance note: the maintained dictionary pipeline and current maintainer-provided sources point
 mainly to Leipzig/Wortschatz frequency data. Some older bundled entries predate the current
 documentation trail, so their exact upstream corpus IDs are not fully reconstructed here.
+
+## Plektra Custom: British English prediction data
+
+The Plektra Custom fork (MDelar/plektra_custom) adds generated British English assets built by
+`tools/british_english/build_en_gb_assets.py`:
+
+- `app/src/main/assets/common/dictionaries/en_gb_overlay.tsv`
+- `app/src/main/assets/common/autocorrect/en_gb_spelling.json`
+- `app/src/main/assets/common/ngrams/en_gb_bigrams.bin`
+
+They contain word lists, spelling pairs and word-pair probabilities only, not source text.
+
+### VarCon (English Speller Database / SCOWL)
+
+- Source: https://github.com/en-wl/wordlist (branch `v1`, `varcon/varcon.txt`)
+- Copyright 2000-2026 by Kevin Atkinson. Permission to use, copy, modify, distribute, and sell any part of the database, or word lists created from it, is granted without fee, provided the copyright notice and this permission notice appear in all copies and supporting documentation. Provided "as is" without express or implied warranty.
+- Used for: American to British spelling pairs.
+
+### symspellpy bigram frequency list / Google Books Ngram
+
+- Source: `frequency_bigramdictionary_en_243_342.txt` from the symspellpy package (https://github.com/mammothb/symspellpy, MIT License)
+- The list is derived from the Google Books Ngram data (https://books.google.com/ngrams), licensed under CC BY 3.0.
+- Used for: background word-pair probabilities, converted to British spelling.
+
+### Topical-Chat
+
+- Source: https://github.com/alexa/Topical-Chat, Copyright Amazon.com, Inc. or its affiliates
+- License: Community Data License Agreement – Sharing – Version 1.0. Only statistical Results (word-pair counts) are published; under section 3.5 the agreement imposes no obligations on Results.
+
+### Taskmaster
+
+- Source: https://github.com/google-research-datasets/Taskmaster, by Bill Byrne, Karthik Krishnamoorthi, Chinnadhurai Sankar, Arvind Neelakantan, Amit Dubey, Kyu-Young Kim, Andy Cedilnik and Saravanan Ganesh (Google LLC)
+- License: Creative Commons Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/)
+- Used for: word-pair counts (aggregated, converted to British spelling).
+
+### British phrase list
+
+- `tools/british_english/uk_seed_corpus.txt` was written for Plektra Custom and is licensed GPL-3.0 with the app.

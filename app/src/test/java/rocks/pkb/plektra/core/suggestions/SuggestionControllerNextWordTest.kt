@@ -140,9 +140,18 @@ class SuggestionControllerNextWordTest {
         pressSpace(controller)
         typeWord(controller, "b")
 
-        val latest = waitForSuggestionCandidates("bar")
-        assertEquals(listOf("bar"), latest.map { it.candidate })
-        assertEquals(SuggestionKind.CURRENT_WORD, latest.first().kind)
+        // Plektra Custom: the word learned after "ich" ("bin") is offered as a completion too.
+        // The next-word bar before typing "b" happens to hold the same words, so wait for the
+        // current-word results specifically.
+        var latest = snapshots.last()
+        for (attempt in 0 until 50) {
+            shadowOf(Looper.getMainLooper()).idle()
+            latest = snapshots.last()
+            if (latest.isNotEmpty() && latest.all { it.kind == SuggestionKind.CURRENT_WORD }) break
+            Thread.sleep(10)
+        }
+        assertEquals(listOf("bin", "bar"), latest.map { it.candidate })
+        assertTrue(latest.all { it.kind == SuggestionKind.CURRENT_WORD })
     }
 
     @Test

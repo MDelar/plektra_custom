@@ -39,7 +39,13 @@ class SuggestionController(
     nextWordPredictorOverride: NextWordPredictor? = null,
     private val activeSuggestionLocalesProvider: (() -> List<Locale>)? = null,
     // False before the user unlocks: dictionaries, learned words and n-grams live in credential storage.
-    private val isStorageAvailable: () -> Boolean = { true }
+    private val isStorageAvailable: () -> Boolean = { true },
+    // Plektra Custom: "Learn from my typing" switch (gates learning and use of learned words).
+    private val isLearningEnabled: () -> Boolean = { true },
+    // Plektra Custom: false in incognito/no-personalised-learning fields.
+    private val isLearningAllowedInField: () -> Boolean = { true },
+    // Plektra Custom: bundled next-word model; null loads it from assets.
+    private val builtInModelLoader: ((Locale) -> BuiltInBigramModel?)? = null
 ) {
 
     private val appContext = context.applicationContext
@@ -203,6 +209,12 @@ class SuggestionController(
         val localeSnapshot = currentLocale
         val layoutSnapshot = keyboardLayoutProvider()
         val primaryRepository = dictionaryRepository
+        val previousSnapshot = previousCompletedWord
+        val sentenceStartSnapshot = sentenceStartPending && previousSnapshot == null
+        val modelSnapshot = builtInModel(localeSnapshot)
+        val useLearnedSnapshot = isLearningEnabled()
+        val contextual = modelSnapshot != null || (useLearnedSnapshot && previousSnapshot != null)
+        val engineLimit = if (contextual) settings.maxSuggestions * 3 else settings.maxSuggestions
         // This is a bounded hash lookup, independent of expensive suggestion ranking.
         // Publish the new label immediately rather than hiding the add button until results arrive.
         pendingAddUserWord = addWordCandidateFor(wordSnapshot, primaryRepository)
@@ -219,18 +231,32 @@ class SuggestionController(
         suggestionJob = suggestionScope.launch {
             // Coalesce key repeat/backspace bursts before doing CPU-bound dictionary work.
             delay(40)
-            val primary = if (primaryRepository.isReady) {
+            val primaryRaw = if (primaryRepository.isReady) {
                 SuggestionEngine(primaryRepository, locale = localeSnapshot, debugLogging = debugLogging).apply {
                     setKeyboardLayout(layoutSnapshot)
                 }.suggest(
                     wordSnapshot,
-                    settings.maxSuggestions,
+                    engineLimit,
                     settings.accentMatching,
                     settings.useKeyboardProximity,
                     settings.useEditTypeRanking
                 )
             } else {
                 emptyList()
+            }
+            val primary = if (contextual && primaryRepository.isReady) {
+                contextualCurrentWord(
+                    wordSnapshot, primaryRaw, previousSnapshot, sentenceStartSnapshot,
+                    modelSnapshot, useLearnedSnapshot, localeSnapshot, primaryRepository,
+                    settings.maxSuggestions
+                )
+            } else {
+                primaryRaw.take(settings.maxSuggestions)
+            }.let { ranked ->
+                // Plektra Custom: typed "color" -> offer "colour" first.
+                val preferred = LanguageOverlay.preferredSpelling(assets, localeSnapshot, wordSnapshot)
+                    ?.takeIf { primaryRepository.isReady && primaryRepository.isKnownWord(it) && !primaryRepository.isKnownWord(wordSnapshot) }
+                ContextualRanking.withPreferredSpelling(ranked, preferred, settings.maxSuggestions, localeSnapshot)
             }
 
             coroutineContext.ensureActive()
@@ -445,7 +471,7 @@ class SuggestionController(
     }
 
     fun markUsed(word: String) {
-        if (!isEnabled()) return
+        if (!isEnabled() || !isLearningEnabled() || !isLearningAllowedInField()) return
         dictionaryRepositoryCache.values
             .ifEmpty { listOf(dictionaryRepository) }
             .forEach { repository -> repository.markUsed(word) }
@@ -579,7 +605,7 @@ class SuggestionController(
         }
 
         val cleanWord = completedWord?.trim()?.takeIf { it.any { ch -> ch.isLetterOrDigit() } }
-        if (cleanWord != null) {
+        if (cleanWord != null && isLearningEnabled() && isLearningAllowedInField()) {
             if (sentenceStartPending) {
                 nextWordPredictor.learnSentenceStart(currentLocale, cleanWord)
             }
@@ -614,13 +640,9 @@ class SuggestionController(
 
     private fun publishNextWordPredictions(previousWord: String) {
         val settings = settingsProvider()
-        val primary = nextWordPredictor.predict(
-            currentLocale,
-            previousWord,
-            settings.maxSuggestions
-        )
+        val primary = nextWordPredictionsFor(currentLocale, previousWord, settings.maxSuggestions)
         val extras = activeExtraLocales().flatMap { locale ->
-            nextWordPredictor.predict(locale, previousWord, settings.maxSuggestions)
+            nextWordPredictionsFor(locale, previousWord, settings.maxSuggestions)
         }
         val predictions = mergeSuggestionResults(primary, extras, settings.maxSuggestions)
         val suggestions = fillWithStarterSuggestions(predictions, settings)
@@ -634,9 +656,9 @@ class SuggestionController(
 
     private fun publishSentenceStartPredictionsOrStarter() {
         val settings = settingsProvider()
-        val primary = nextWordPredictor.predictSentenceStart(currentLocale, settings.maxSuggestions)
+        val primary = sentenceStartPredictionsFor(currentLocale, settings.maxSuggestions)
         val extras = activeExtraLocales().flatMap { locale ->
-            nextWordPredictor.predictSentenceStart(locale, settings.maxSuggestions)
+            sentenceStartPredictionsFor(locale, settings.maxSuggestions)
         }
         val predictions = mergeSuggestionResults(primary, extras, settings.maxSuggestions)
         val suggestions = fillWithStarterSuggestions(predictions, settings)
@@ -901,6 +923,7 @@ class SuggestionController(
     }
 
     private fun schedulePrimaryDictionaryLoad(refreshAfterLoad: Boolean) {
+        scheduleBuiltInModelLoad(currentLocale)
         if (!isStorageAvailable()) return
         val repository = dictionaryRepository
         if (refreshAfterLoad) {
@@ -958,7 +981,96 @@ class SuggestionController(
         }
     }
 
+    // ---- Plektra Custom: built-in model, contextual ranking and learning controls ----
+
+    private fun builtInModel(locale: Locale): BuiltInBigramModel? {
+        val loader = builtInModelLoader
+        return if (loader != null) loader(locale) else BuiltInBigramModel.cached(locale)
+    }
+
+    private fun scheduleBuiltInModelLoad(locale: Locale) {
+        if (builtInModelLoader != null || BuiltInBigramModel.assetPathFor(locale) == null) return
+        if (BuiltInBigramModel.cached(locale) != null) return
+        loadScope.launch {
+            if (BuiltInBigramModel.load(assets, locale) != null) {
+                cursorHandler.post {
+                    if (locale == currentLocale && tracker.currentWord.isBlank()) {
+                        val previous = previousCompletedWord
+                        if (previous != null) publishNextWordPredictions(previous)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun nextWordPredictionsFor(locale: Locale, previousWord: String, limit: Int): List<SuggestionResult> {
+        val learned = if (isLearningEnabled()) nextWordPredictor.predict(locale, previousWord, limit * 2) else emptyList()
+        val model = builtInModel(locale)?.predict(previousWord, limit * 3).orEmpty()
+        return ContextualRanking.blendNextWords(learned, model, limit, locale)
+    }
+
+    private fun sentenceStartPredictionsFor(locale: Locale, limit: Int): List<SuggestionResult> {
+        val learned = if (isLearningEnabled()) nextWordPredictor.predictSentenceStart(locale, limit * 2) else emptyList()
+        val model = builtInModel(locale)?.predictSentenceStart(limit * 3).orEmpty()
+        return ContextualRanking.blendNextWords(learned, model, limit, locale)
+    }
+
+    private fun contextualCurrentWord(
+        typed: String,
+        results: List<SuggestionResult>,
+        previousWord: String?,
+        atSentenceStart: Boolean,
+        model: BuiltInBigramModel?,
+        useLearned: Boolean,
+        locale: Locale,
+        repository: DictionaryRepository,
+        limit: Int
+    ): List<SuggestionResult> {
+        val learned = if (useLearned && previousWord != null) {
+            nextWordPredictor.predict(locale, previousWord, LEARNED_CONTEXT_LOOKUP)
+        } else emptyList()
+        val learnedCounts = learned.associate { it.candidate.lowercase(locale) to it.score.toInt() }
+        val modelCompletions = when {
+            model == null -> emptyList()
+            previousWord != null -> model.completions(previousWord, typed, limit * 2)
+            atSentenceStart -> model.sentenceStartCompletions(typed, limit * 2)
+            else -> emptyList()
+        }.map { ContextualRanking.Candidate(it.word, it.probability) }
+        val learnedCompletions = learned.map { ContextualRanking.Candidate(it.candidate, 0.0) }
+        val probability: (String) -> Double = { word ->
+            when {
+                model == null -> 0.0
+                previousWord != null -> model.probability(previousWord, word)
+                atSentenceStart -> model.sentenceStartProbability(word)
+                else -> 0.0
+            }
+        }
+        return ContextualRanking.rerankCurrentWord(
+            typed = typed,
+            results = results,
+            modelProbability = probability,
+            learnedCounts = learnedCounts,
+            extraCompletions = learnedCompletions + modelCompletions,
+            limit = limit,
+            locale = locale,
+            isKnownWord = { repository.isKnownWord(it) || learnedCounts.containsKey(it.lowercase(locale)) }
+        )
+    }
+
+    /** Deletes everything learned from typing (next-word pairs). */
+    fun clearLearnedData() {
+        loadScope.launch {
+            try {
+                nextWordPredictor.clearAll()
+            } catch (e: Exception) {
+                Log.e("PlektraIME", "Failed to clear learned data", e)
+            }
+        }
+        previousCompletedWord = null
+    }
+
     companion object {
+        private const val LEARNED_CONTEXT_LOOKUP = 24
         private const val CURSOR_WORD_CONTEXT_CHARS = 128
         private const val PRIMARY_SUGGESTION_BOOST = 0.35
     }
