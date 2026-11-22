@@ -530,3 +530,16 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+// ---------------------------------------------------------------------------
+// Plektra Custom (MDelar/plektra_custom) fork identity.
+// Kept as one block at the end of the file so upstream merges stay clean.
+// The stable build installs alongside official Plektra under its own ID/name,
+// and GitHub update checks are off (upstream APKs use a different key/ID).
+// ---------------------------------------------------------------------------
+android.productFlavors.getByName("stable") {
+    applicationIdSuffix = ".custom"
+    manifestPlaceholders["appLabel"] = "Plektra Custom"
+    manifestPlaceholders["imeLabel"] = "Plektra Custom"
+    buildConfigField("boolean", "ENABLE_GITHUB_UPDATE_CHECKS", "false")
+}

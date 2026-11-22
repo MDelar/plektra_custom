@@ -15,6 +15,9 @@ class FlavorBuildConfigTest {
         if (BuildConfig.DISTRIBUTION_CHANNEL == "play") {
             assertFalse(BuildConfig.ENABLE_GITHUB_UPDATE_CHECKS)
             assertTrue(BuildConfig.APPLICATION_ID.contains(".unsovereign"))
+        } else if (BuildConfig.APPLICATION_ID.endsWith(".custom")) {
+            // Plektra Custom fork: no update checks against upstream (different key and ID).
+            assertFalse(BuildConfig.ENABLE_GITHUB_UPDATE_CHECKS)
         } else {
             assertEquals(BuildConfig.IS_FDROID_BUILD, !BuildConfig.ENABLE_GITHUB_UPDATE_CHECKS)
         }
