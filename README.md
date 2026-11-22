@@ -1,18 +1,14 @@
 <p align="center"><img src="docs/branding/plektra-open-color.svg" alt="Plektra" width="160"></p>
 
-> **Plektra Custom** — this is [MDelar/plektra_custom](https://github.com/MDelar/plektra_custom), a personal fork of
-> [Plektra](https://github.com/pkb-rocks/plektra) by Patrick Zauner (itself grown out of Pastiera by Andrea Palumbo /
-> PalSoftware). It installs alongside official Plektra as **Plektra Custom** (`rocks.pkb.plektra.custom`), signed with its
-> own key, with GitHub update checks switched off. Fork changes:
+> **Plektra Custom** is a personal fork of [Plektra](https://github.com/pkb-rocks/plektra) (Patrick Zauner, grown out of
+> Pastiera by Andrea Palumbo / PalSoftware). It installs alongside Plektra as `rocks.pkb.plektra.custom`, with its own
+> signing key and no update checks.
 >
-> - **British English predictions:** UK spellings (colour, realise, favourite) replace US-only ones, typed US spellings are
->   offered and auto-corrected to the UK form, and a bundled offline next-word model gives predictions from day one and
->   ranks completions using the previous word ("see y" → "you").
-> - **Learn from my typing:** on/off switch and "Delete learned data" in Auto-correction settings. Learned word pairs stay in
->   app-private storage on the device (not in cloud backup), are never learned in incognito or password fields, and are
->   capped at 20,000 pairs.
+> - **British English:** UK spellings first (color → colour), an offline next-word model, and suggestions ranked by the
+>   previous word.
+> - **Learn from my typing:** optional, stays on the device, skips incognito and password fields, capped at 20,000 word pairs.
 >
-> Data sources and their licences are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Licence: GPL-3.0, as upstream.
+> Licence GPL-3.0, as upstream. Data sources: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 # Plektra
 
