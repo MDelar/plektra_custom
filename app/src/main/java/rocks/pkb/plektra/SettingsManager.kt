@@ -3349,6 +3349,19 @@ object SettingsManager {
             .apply()
     }
 
+    // Plektra Custom: "Learn from my typing". Learned data stays in app-private storage on this
+    // device (user_ngrams.db is not part of cloud backup).
+    private const val KEY_LEARN_FROM_TYPING = "plektra_custom_learn_from_typing"
+
+    fun getLearnFromTyping(context: Context): Boolean =
+        getPreferences(context).getBoolean(KEY_LEARN_FROM_TYPING, true)
+
+    fun setLearnFromTyping(context: Context, enabled: Boolean) {
+        getPreferences(context).edit()
+            .putBoolean(KEY_LEARN_FROM_TYPING, enabled)
+            .apply()
+    }
+
     /**
      * Returns the list of languages enabled for auto-correction.
      * @return Set of language codes (e.g. "it", "en")

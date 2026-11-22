@@ -156,6 +156,11 @@ class AndroidDictionaryRepository(
                     }
                 }
 
+                if (loadedSerialized) {
+                    // Plektra Custom: British English spelling/frequency overlay.
+                    LanguageOverlay.load(assets, baseLocale)?.let { applyLanguageOverlay(it) }
+                }
+
                 if (!loadedSerialized) {
                     Log.i(tag, "No usable base dictionary for ${baseLocale.language}; loading user words only")
                     prefixCache.clear()
@@ -581,6 +586,28 @@ class AndroidDictionaryRepository(
         if (debugLogging) {
             Log.d(tag, "index built: normalizedIndex=${normalizedIndex.size} prefixCache=${prefixCache.size}")
         }
+    }
+
+    /**
+     * Plektra Custom: removes and re-weights bundled (MAIN) words. User words are untouched, so a
+     * word the user adds back (e.g. "color") is known again and no longer auto-corrected.
+     */
+    internal fun applyLanguageOverlay(overlay: LanguageOverlay) {
+        val touched = overlay.removals + overlay.frequencies.keys
+        if (touched.isEmpty()) return
+        fun isTouchedMain(entry: DictionaryEntry) =
+            entry.source == SuggestionSource.MAIN && entry.word in touched
+        normalizedIndex.values.forEach { it.removeAll(::isTouchedMain) }
+        normalizedIndex.entries.removeAll { it.value.isEmpty() }
+        prefixCache.values.forEach { it.removeAll(::isTouchedMain) }
+        prefixCache.entries.removeAll { it.value.isEmpty() }
+        val added = overlay.frequencies.map { (word, frequency) ->
+            DictionaryEntry(word, frequency, SuggestionSource.MAIN)
+        }
+        index(added, keepExisting = true)
+        if (symSpell != null) addToSymSpell(added)
+        topCommonEntriesCache = null
+        Log.i(tag, "Applied ${baseLocale.language} overlay: ${overlay.removals.size} removed, ${added.size} set")
     }
 
     private fun purgeUserEntries(currentUserEntries: List<DictionaryEntry>) {

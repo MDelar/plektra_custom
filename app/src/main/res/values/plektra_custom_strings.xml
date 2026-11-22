@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Plektra Custom fork strings, kept separate so upstream merges stay clean. -->
+<resources>
+    <string name="plektra_custom_learn_title">Learn from my typing</string>
+    <string name="plektra_custom_learn_description">Improve predictions from words you type. Stays on this phone, never in incognito or password fields.</string>
+    <string name="plektra_custom_clear_learned_title">Delete learned data</string>
+    <string name="plektra_custom_clear_learned_confirm">Delete everything Plektra Custom has learned from your typing? Your personal dictionary is not affected.</string>
+    <string name="plektra_custom_clear_learned_action">Delete</string>
+    <string name="plektra_custom_learned_usage">%1$d of %2$d word pairs · %3$s</string>
+</resources>

@@ -588,6 +588,9 @@ fun AutoCorrectionCategoryScreen(
                             }
                         }
 
+                        // Plektra Custom
+                        LearnFromTypingSettings(enabled = experimentalSuggestionsEnabled)
+
                     }
                 }
             }

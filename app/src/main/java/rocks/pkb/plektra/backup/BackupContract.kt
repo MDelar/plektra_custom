@@ -404,6 +404,7 @@ internal object BackupPreferenceContract {
             "ctrl_latch_stays_on_space" to PreferenceValueType.BOOLEAN,
             "use_keyboard_proximity" to PreferenceValueType.BOOLEAN,
             "use_edit_type_ranking" to PreferenceValueType.BOOLEAN,
+            "plektra_custom_learn_from_typing" to PreferenceValueType.BOOLEAN,
             "custom_input_styles" to PreferenceValueType.STRING,
             "titan2_layout_enabled" to PreferenceValueType.BOOLEAN,
             "titan2_elite_rounded_corner_insets" to PreferenceValueType.BOOLEAN,

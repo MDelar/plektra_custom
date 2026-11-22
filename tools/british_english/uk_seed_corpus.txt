@@ -1,0 +1,384 @@
+# Hand-written British English messaging phrases for Plektra Custom.
+# Original text written for this project (GPL-3.0, same as the app).
+# One message per line. Lines starting with # are ignored.
+# These are weighted heavily so everyday British phrasing beats web-text phrasing.
+Hi, how are you?
+Hiya, you alright?
+Are you alright?
+I'm alright thanks, how are you?
+I'm good thanks, you?
+Not bad thanks, just a bit tired.
+Morning! Did you sleep well?
+Good morning, hope you're well.
+Good afternoon, hope you're having a good day.
+Evening! How was your day?
+How was your day?
+How's it going?
+How's everything going?
+What are you up to?
+What are you up to later?
+What are you up to this weekend?
+Are you free later?
+Are you free tomorrow?
+Are you free this weekend?
+Are you around this afternoon?
+Are you coming tonight?
+Are you still coming?
+Are you on your way?
+I'm on my way.
+On my way now.
+I'm running a bit late, sorry.
+Running late, be there in ten minutes.
+Sorry, I'm going to be late.
+Be there in five minutes.
+I'll be there in about twenty minutes.
+I'll be there soon.
+I'm nearly there.
+I'm here, where are you?
+Just parked, see you in a minute.
+Just leaving now.
+Just got home.
+Just got in.
+Just finished work.
+Just finished.
+Just to let you know, I'll be home late tonight.
+Let me know when you're free.
+Let me know when you get home.
+Let me know if you need anything.
+Let me know what you think.
+Let me know how it goes.
+Let me know if that's okay.
+Let me know if you have any questions.
+Thanks for letting me know.
+Thank you so much.
+Thank you very much.
+Thanks very much for your help.
+Thanks for your help.
+Thanks for that.
+Thanks, that's really helpful.
+Thanks again.
+Cheers mate.
+Cheers, see you later.
+Cheers for that.
+No worries.
+No worries at all.
+No problem.
+Not a problem.
+That's fine.
+That's absolutely fine.
+That's brilliant, thank you.
+That sounds great.
+That sounds good to me.
+Sounds good.
+Sounds like a plan.
+Brilliant, see you then.
+Lovely, thank you.
+Perfect, thanks.
+Great, thanks.
+Fair enough.
+I'm not sure.
+I'm not sure yet, I'll let you know.
+I don't know yet.
+I don't think so.
+I think so.
+I hope so.
+I'm sure it'll be fine.
+Don't worry about it.
+Don't forget to bring your coat.
+Don't forget your keys.
+I can't make it tonight, sorry.
+I can't wait.
+I can't believe it.
+I won't be long.
+I'll call you later.
+I'll ring you later.
+I'll give you a ring tomorrow.
+I'll text you when I'm on my way.
+I'll send you the details.
+I'll have a look and get back to you.
+I'll get back to you as soon as I can.
+I'll see you tomorrow.
+I'll see you later.
+See you later.
+See you soon.
+See you tomorrow.
+See you then.
+See you on Monday.
+See you at the weekend.
+Speak soon.
+Speak to you later.
+Talk to you later.
+Take care.
+Have a good day.
+Have a lovely day.
+Have a good weekend.
+Have a lovely weekend.
+Have a safe journey.
+Have a nice time.
+Have fun!
+Enjoy your holiday.
+Hope you have a lovely time.
+Hope you're feeling better.
+Hope you feel better soon.
+Hope all is well.
+Hope everything's okay.
+Hope it goes well.
+Good luck tomorrow.
+Good luck with everything.
+Well done!
+Congratulations!
+Happy birthday! Hope you have a lovely day.
+Happy birthday mate, have a good one.
+Merry Christmas and a happy new year.
+Happy new year!
+Sorry, I missed your call.
+Sorry, I've been really busy.
+Sorry for the late reply.
+Sorry about that.
+Sorry, I didn't see your message.
+Sorry, I forgot.
+Can you call me when you get a chance?
+Can you give me a ring?
+Can you send me the address?
+Can you pick me up?
+Can you pick up some milk on the way home?
+Could you send me the link please?
+Could you have a look at this when you get a minute?
+Could we move it to next week?
+Would you like to come round for dinner?
+Would you like a cup of tea?
+Do you want a brew?
+Do you fancy a coffee?
+Do you fancy going out for food?
+Do you want to come with us?
+Do you want me to bring anything?
+Do you need anything from the shop?
+Do you know what time it starts?
+What time is it?
+What time do you finish?
+What time are you coming?
+What time shall we meet?
+What time does it start?
+Shall we meet at the station?
+Shall we go for a walk?
+Shall I bring anything?
+Where are you?
+Where shall we meet?
+Where did you park?
+Who's coming?
+Is that okay?
+Is that alright?
+Is everything okay?
+Is it still on for tonight?
+It's fine, honestly.
+It's been a long day.
+It's raining again.
+It's freezing today.
+It's lovely weather today.
+It was really good to see you.
+It was lovely to see you.
+It was a great day.
+We're going to the park later.
+We're running late.
+We're on our way.
+We'll see.
+We should catch up soon.
+We need to sort out the plans for Saturday.
+They're coming round at seven.
+He's on his way.
+She's not feeling well.
+My mum says hello.
+Say hello to your mum for me.
+I'm going to the shops, do you need anything?
+I'm going to make a cup of tea.
+I'm going to bed, night.
+I'm going to be home late.
+I'm at work at the moment.
+I'm at home now.
+I'm in a meeting, I'll call you back.
+I'm off to the gym.
+I'm off work tomorrow.
+I've just seen your message.
+I've got a meeting at nine.
+I've finished marking.
+I've sent you an email.
+I've booked the table for eight.
+Have you had your tea?
+Have you eaten?
+Have you seen the news?
+Have you got a minute?
+Did you get my message?
+Did you get home okay?
+Did you have a good time?
+That's really kind of you.
+That's a shame.
+That's annoying.
+That's hilarious.
+Oh no, that's rubbish.
+I'm absolutely knackered.
+I'm gutted.
+I'm really chuffed.
+I'm a bit skint this month.
+It's a bit of a faff.
+Fancy a cuppa?
+Put the kettle on.
+Let's have a chat tomorrow.
+Let's get a takeaway.
+Let's go to the cinema.
+Let's sort it out next week.
+Shall we get fish and chips?
+I'll pop round later.
+I'll pop to the shop.
+Pop over whenever you like.
+Give me five minutes.
+Give me a shout if you need anything.
+Bear with me.
+Hang on a minute.
+Just a quick one, are you free on Friday?
+Just a quick reminder about tomorrow.
+Just checking you're okay.
+Just wondering if you got my email.
+Quick question, what time is the meeting?
+The train's been cancelled.
+The bus is running late.
+The traffic is awful.
+I'm stuck in traffic.
+I'm on the train.
+I'll get the bus.
+I'll get a taxi.
+Can you send me the postcode?
+Is there parking?
+The parcel has arrived.
+Your parcel is at the post office.
+The kids are at school.
+School finishes at three.
+Parents' evening is on Thursday.
+Homework is due on Monday.
+The deadline is next Friday.
+Please find attached the document.
+Please let me know if you have any questions.
+Please see the attached file.
+Many thanks.
+Kind regards.
+Best wishes.
+Thanks in advance.
+I look forward to hearing from you.
+I hope this email finds you well.
+Further to our conversation, please find the details below.
+I would be grateful if you could let me know.
+I'm happy to help.
+I'm happy with that.
+That works for me.
+That suits me.
+Either is fine.
+Whatever's easier for you.
+Whenever suits you.
+Love you.
+Love you too.
+Miss you.
+Night night.
+Goodnight, sleep well.
+Text me when you're home.
+Message me when you get there.
+Ring me when you can.
+Call me back please.
+Call you in a bit.
+In a bit.
+Laters.
+Will do.
+Yes please.
+No thanks.
+Yeah, that's fine.
+Yeah, no worries.
+Yeah, sounds good.
+Yeah, I know.
+Yes, that's right.
+No, not yet.
+Not yet, I'll let you know.
+Okay, see you soon.
+Okay, no problem.
+Okay, thanks.
+Ok, will do.
+Oh right, okay.
+Oh I see.
+Oh brilliant.
+Oh dear.
+Aww, that's lovely.
+Honestly, it's fine.
+To be honest, I'm not bothered.
+I don't mind.
+I don't mind either way.
+I'd rather stay in tonight.
+I'd love to.
+I'd like to book an appointment.
+I need to go to the doctor's.
+I need to get some petrol.
+I need to pick up the kids.
+I need to finish this first.
+I have to go now.
+I've got to go.
+Got to go, speak later.
+I'll be in touch.
+Keep me posted.
+Keep me updated.
+Fingers crossed.
+Bless you.
+Proper good.
+That's well good.
+It's lush.
+Take your time.
+No rush.
+There's no rush at all.
+Have a think and let me know.
+I'll think about it.
+I'm thinking about it.
+I was thinking we could go on Saturday.
+I was going to ask you the same thing.
+I was just about to text you.
+I'm looking forward to it.
+Looking forward to seeing you.
+Can't wait to see you.
+Is it okay if I bring a friend?
+Is it alright if I leave early?
+Do you mind if I call you later?
+Would it be possible to change the time?
+What do you think?
+What do you reckon?
+What's the plan?
+What's for tea?
+What's happening?
+What happened?
+What did they say?
+What are we doing tomorrow?
+Where are we going?
+How much was it?
+How long will it take?
+How about Saturday?
+How about half seven?
+Half seven is fine.
+Quarter past eight.
+About ten o'clock.
+Sometime next week.
+At the weekend.
+In the morning.
+In the afternoon.
+In the evening.
+Later on.
+Tomorrow morning.
+Tomorrow night.
+Next week.
+Last night.
+This morning.
+This afternoon.
+This evening.
+Right now.
+At the moment.
+As soon as possible.
+On Monday morning.
+On Friday night.
+Bank holiday weekend.
+Over the summer holidays.
+During half term.
+After school.
+After work.
+Before lunch.

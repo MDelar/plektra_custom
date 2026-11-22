@@ -102,6 +102,14 @@ object AutoCorrector {
                     val fileName = "common/autocorrect/auto_corrections_$locale.json"
                     val jsonString = assets.open(fileName).bufferedReader().use { it.readText() }
                     loadCorrectionsFromJson(locale, jsonString)
+                    // Plektra Custom: British spelling replacements (color -> colour) for English.
+                    rocks.pkb.plektra.core.suggestions.LanguageOverlay.correctionsAssetPathFor(locale)?.let { path ->
+                        try {
+                            loadCorrectionsFromJson(locale, assets.open(path).bufferedReader().use { it.readText() })
+                        } catch (e: Exception) {
+                            Log.d(TAG, "No extra corrections at $path")
+                        }
+                    }
 
                     if (context != null) {
                         val customCorrections = rocks.pkb.plektra.SettingsManager.getCustomAutoCorrections(context, locale)
