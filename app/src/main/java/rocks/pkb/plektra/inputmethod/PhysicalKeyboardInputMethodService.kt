@@ -2083,7 +2083,14 @@ class PhysicalKeyboardInputMethodService : InputMethodService(), ClicksAccessibi
                 modifierStateController.consumeShiftOneShot()
             }
             variationInteractedDuringHold = true
-            suggestionController.readInitialContext(currentInputConnection)
+            // Plektra Custom: treat the tapped word as typed, so the bar moves on to next-word
+            // predictions instead of showing the word that was just inserted.
+            val accepted = rocks.pkb.plektra.inputmethod.suggestions.SuggestionButtonHandler.consumeLastCommitted()
+            if (accepted != null) {
+                suggestionController.onSuggestionAccepted(accepted.word, accepted.followedBySpace)
+            } else {
+                suggestionController.readInitialContext(currentInputConnection)
+            }
             updateStatusBarText()
         }
         candidatesBarController.onHideSuggestion = { suggestion ->
@@ -6671,7 +6678,8 @@ class PhysicalKeyboardInputMethodService : InputMethodService(), ClicksAccessibi
 
             // CRITICAL FIX: Reset tracker after accepting suggestion to prevent duplicate letters
             // The cursor debounce can cause tracker to be out of sync when user types quickly after accepting
-            suggestionController.onContextReset()
+            // Plektra Custom: also moves the bar on to next-word predictions for the accepted word.
+            suggestionController.onSuggestionAccepted(replacement, shouldAppendSpace)
             NotificationHelper.triggerHapticFeedback(this)
             Log.d(TAG, "Suggestion '$suggestion' inserted successfully")
         }

@@ -18,6 +18,14 @@ import rocks.pkb.plektra.core.Punctuation
 object SuggestionButtonHandler {
     private const val TAG = "SuggestionButtonHandler"
 
+    /** Plektra Custom: the word a tap just inserted, and whether a space now follows it. */
+    data class CommittedSuggestion(val word: String, val followedBySpace: Boolean)
+
+    @Volatile private var lastCommitted: CommittedSuggestion? = null
+
+    /** Returns and clears the suggestion the last tap inserted, if any. */
+    fun consumeLastCommitted(): CommittedSuggestion? = lastCommitted.also { lastCommitted = null }
+
     fun createSuggestionClickListener(
         suggestion: String,
         inputConnection: InputConnection?,
@@ -127,6 +135,7 @@ object SuggestionButtonHandler {
         }
 
         val committed = inputConnection.commitText(replacement, 1)
+        var followedBySpace = false
         if (committed && shouldAppendSpace) {
             val committedWithSpace = inputConnection.commitText(" ", 1)
             val spaced = if (committedWithSpace) {
@@ -135,6 +144,7 @@ object SuggestionButtonHandler {
             } else {
                 ensureTrailingSpaceAfterSuggestion()
             }
+            followedBySpace = spaced
             if (spaced) {
                 AutoSpaceTracker.markAutoSpace()
                 Log.d(TAG, "Suggestion auto-space marked")
@@ -144,6 +154,7 @@ object SuggestionButtonHandler {
         }
         val textToCommit = if (shouldAppendSpace) "$replacement " else replacement
         Log.d(TAG, "Suggestion inserted as '$textToCommit' (committed=$committed)")
+        lastCommitted = if (committed) CommittedSuggestion(replacement, followedBySpace) else null
         if (committed) {
             DebugCaptureStore.recordAutoCorrectionCommit(
                 before = currentWord,
