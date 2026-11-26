@@ -242,7 +242,8 @@ class SuggestionControllerNextWordTest {
         pressSpace(controller)
 
         val latest = snapshots.last()
-        assertEquals(listOf("bin", "ich", "dann"), latest.map { it.candidate })
+        // Plektra Custom: the word just typed ("ich") is not used to pad the bar.
+        assertEquals(listOf("bin", "dann", "bar"), latest.map { it.candidate })
         assertEquals(SuggestionKind.NEXT_WORD, latest.first().kind)
         assertEquals(SuggestionKind.STARTER_WORD, latest[1].kind)
     }
@@ -264,7 +265,8 @@ class SuggestionControllerNextWordTest {
         controller.flushNextWordLearningForTests()
 
         val latest = snapshots.last()
-        assertEquals(listOf("ich", "dann", "bar"), latest.map { it.candidate })
+        // Plektra Custom: the word just typed ("ich") is not used to pad the bar.
+        assertEquals(listOf("dann", "bar"), latest.map { it.candidate })
         assertEquals(SuggestionKind.STARTER_WORD, latest.first().kind)
         assertTrue(store.predict("de-DE", "ich", limit = 3).isEmpty())
     }

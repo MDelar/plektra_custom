@@ -448,6 +448,44 @@ class SuggestionController(
         suggestionsListener?.invoke(emptyList())
     }
 
+    /**
+     * Plektra Custom: a suggestion was inserted from the bar (tap or trackpad swipe). Resets the
+     * current word like [onContextReset], learns the word in context, and, when a space follows,
+     * shows next-word predictions for it so the accepted word doesn't linger in the bar.
+     */
+    fun onSuggestionAccepted(word: String, followedBySpace: Boolean) {
+        val previous = previousCompletedWord
+        val atSentenceStart = sentenceStartPending && previous == null
+        cursorRunnable?.let { cursorHandler.removeCallbacks(it) }
+        cursorRunnable = null
+        pendingInitialContextConnection = null
+        cancelPendingWordSuggestions()
+        latestSuggestions.set(emptyList())
+        tracker.onContextChanged()
+        pendingAddUserWord = null
+        val cleanWord = word.trim().takeIf { it.any { ch -> ch.isLetterOrDigit() } }
+        if (!isEnabled() || cleanWord == null || !followedBySpace) {
+            previousCompletedWord = null
+            sentenceStartPending = true
+            suggestionsListener?.invoke(emptyList())
+            return
+        }
+        if (isLearningEnabled() && isLearningAllowedInField()) {
+            if (atSentenceStart) {
+                nextWordPredictor.learnSentenceStart(currentLocale, cleanWord)
+            } else if (previous != null) {
+                nextWordPredictor.learn(currentLocale, previous, cleanWord)
+            }
+        }
+        previousCompletedWord = cleanWord
+        sentenceStartPending = false
+        if (settingsProvider().suggestionsEnabled) {
+            publishNextWordPredictions(cleanWord)
+        } else {
+            suggestionsListener?.invoke(emptyList())
+        }
+    }
+
     fun onNavModeToggle() {
         if (!isEnabled()) return
         tracker.onContextChanged()
@@ -526,7 +564,8 @@ class SuggestionController(
         val next = fillWithStarterSuggestions(
             current.filterNot { it.candidate.equals(trimmed, ignoreCase = true) },
             settingsProvider(),
-            excludedCandidates = setOf(trimmed)
+            // Plektra Custom: don't refill with the word just typed either.
+            excludedCandidates = setOfNotNull(trimmed, previousCompletedWord?.trim())
         )
         latestSuggestions.set(next)
         suggestionsListener?.invoke(next)
@@ -645,7 +684,8 @@ class SuggestionController(
             nextWordPredictionsFor(locale, previousWord, settings.maxSuggestions)
         }
         val predictions = mergeSuggestionResults(primary, extras, settings.maxSuggestions)
-        val suggestions = fillWithStarterSuggestions(predictions, settings)
+        // Plektra Custom: never pad the bar with the word that was just typed or accepted.
+        val suggestions = fillWithStarterSuggestions(predictions, settings, setOf(previousWord.trim()))
         if (suggestions.isNotEmpty()) {
             latestSuggestions.set(suggestions)
             suggestionsListener?.invoke(suggestions)
@@ -1005,7 +1045,9 @@ class SuggestionController(
 
     private fun nextWordPredictionsFor(locale: Locale, previousWord: String, limit: Int): List<SuggestionResult> {
         val learned = if (isLearningEnabled()) nextWordPredictor.predict(locale, previousWord, limit * 2) else emptyList()
+        // The model never suggests repeating the word just typed ("you" -> "you").
         val model = builtInModel(locale)?.predict(previousWord, limit * 3).orEmpty()
+            .filterNot { it.word.equals(previousWord.trim(), ignoreCase = true) }
         return ContextualRanking.blendNextWords(learned, model, limit, locale)
     }
 
